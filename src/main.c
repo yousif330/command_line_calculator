@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "postfix.h"
 
 #define BUFFER_SIZE 100
@@ -30,5 +31,6 @@ int main()
     int result = evaluate_postfix(postfix);
     printf("%d\n", result);
 
+    free(postfix);
     return 0;
 }
