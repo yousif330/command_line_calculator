@@ -73,7 +73,7 @@ double evaluate_postfix(char postfix[])
 
             double sum = 0;
 
-            for (i; postfix[i] != ','; i++)
+            while (postfix[i] != ',')
             {
                 if (postfix[i] == '.')
                 {
@@ -93,6 +93,7 @@ double evaluate_postfix(char postfix[])
                     sum += postfix[i] - '0';
                     dec = 1;
                 }
+                i++;
             }
             push_i(&stack, sum);
         }
