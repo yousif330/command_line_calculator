@@ -19,7 +19,7 @@ char *infix_to_postfix(char exp[])
         {
             postfix[j++] = exp[i++];
 
-            if (!isdigit(exp[i]))
+            if (!isdigit(exp[i]) && exp[i] != '.')
             {
                 postfix[j++] = ',';
             }
