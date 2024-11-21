@@ -10,7 +10,7 @@ void push(Node **head, char data)
     *head = new;
 }
 
-void push_i(Node_i **head, int data)
+void push_i(Node_i **head, double data)
 {
     Node_i *new = (Node_i *)malloc(sizeof(Node_i));
     new->data = data;
@@ -35,13 +35,13 @@ char pop(Node **head)
     }
 }
 
-int pop_i(Node_i **head)
+double pop_i(Node_i **head)
 {
     if (*head)
     {
         Node_i *p = *head;
         *head = (*head)->next;
-        int r = p->data;
+        double r = p->data;
         free(p);
         return r;
     }

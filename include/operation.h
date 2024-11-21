@@ -3,10 +3,13 @@
 
 #include "stack.h"
 
-int oper(char op);
-int add(int a, int b);
-int sub(int a, int b);
-int mul(int a, int b);
-int div_(int a, int b, Node_i *stack);
+int is_operator(char op);
+int is_unary(char op);
+int out_pre(char op);
+int in_pre(char op);
+double add(double a, double b);
+double sub(double a, double b);
+double mul(double a, double b);
+double div_(double a, double b, Node_i *stack);
 
 #endif

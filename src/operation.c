@@ -3,19 +3,79 @@
 #include "operation.h"
 #include "stack.h"
 
-// checking if a character is an operator and returns its precedence if true
-int oper(char op)
+// checking if a character is an operator
+int is_operator(char op)
 {
     switch (op)
     {
+    case '+':
+    case '-':
     case '*':
     case '/':
-        return 2;
-        break;
+    case '^':
+    case 's':
+    case '!':
+    case '(':
+    case ')':
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+int is_unary(char op)
+{
+    switch (op)
+    {
+    case '!':
+    case 's':
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+// finding operator precedence outside stack
+int out_pre(char op)
+{
+    switch (op)
+    {
     case '+':
     case '-':
         return 1;
-        break;
+    case '*':
+    case '/':
+        return 3;
+    case '^':
+    case 's':
+        return 6;
+    case '!':
+        return 8;
+    case '(':
+        return 9;
+    default:
+        return 0;
+    }
+}
+
+// finding operator precedence inside stack
+int in_pre(char op)
+{
+    switch (op)
+    {
+    case '+':
+    case '-':
+        return 2;
+    case '*':
+    case '/':
+        return 4;
+    case '^':
+    case 's':
+        return 5;
+    case '!':
+        return 7;
+    case '(':
+        return 0;
     default:
         return 0;
     }
@@ -23,22 +83,22 @@ int oper(char op)
 
 // all the basic operations
 
-int add(int a, int b)
+double add(double a, double b)
 {
     return a + b;
 }
 
-int sub(int a, int b)
+double sub(double a, double b)
 {
     return a - b;
 }
 
-int mul(int a, int b)
+double mul(double a, double b)
 {
     return a * b;
 }
 
-int div_(int a, int b, Node_i *stack)
+double div_(double a, double b, Node_i *stack)
 {
     if (b != 0)
     {

@@ -27,9 +27,9 @@ int main()
         return -1;
     }
 
-    char *postfix = infix_to_postfix(buffer, BUFFER_SIZE);
-    int result = evaluate_postfix(postfix);
-    printf("%d\n", result);
+    char *postfix = infix_to_postfix(buffer);
+    double result = evaluate_postfix(postfix);
+    printf("result: %.15g\n", result);
 
     free(postfix);
     return 0;

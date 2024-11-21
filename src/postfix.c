@@ -1,98 +1,57 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
+#include <math.h>
 #include "postfix.h"
 #include "stack.h"
 #include "operation.h"
 
-char *infix_to_postfix(char exp[], int size)
+char *infix_to_postfix(char exp[])
 {
     Node *stack = NULL;
-    char *postfix = (char *)malloc(sizeof(char) * size);
+    char *postfix = (char *)malloc(sizeof(char) * (strlen(exp) + 1) * 2);
 
-    int i = 0;
-    int j = 0;
-    for (i; exp[i] != '\0'; i++)
+    int i = 0, j = 0;
+    while (exp[i] != '\0')
     {
-        if (exp[i] != ' ')
+        if (isdigit(exp[i]) || exp[i] == '.')
         {
-            // handing operands
-            if (isdigit(exp[i]))
+            postfix[j++] = exp[i++];
+
+            if (!isdigit(exp[i]))
             {
-                if (isdigit(exp[i + 1]))
-                {
-                    while (isdigit(exp[i]))
-                    {
-                        postfix[j] = exp[i];
-                        j++;
-                        i++;
-                    }
-                    postfix[j] = ',';
-                    j++;
-                    i--;
-                }
-                else
-                {
-                    postfix[j] = exp[i];
-                    j++;
-
-                    postfix[j] = ',';
-                    j++;
-                }
+                postfix[j++] = ',';
             }
-
-            // handling parentheses
-            else if (exp[i] == '(' || exp[i] == ')')
+        }
+        else if (is_operator(exp[i]))
+        {
+            if (out_pre(exp[i]) > in_pre(top(stack)))
             {
-                if (exp[i] == '(')
-                {
-                    push(&stack, '(');
-                }
-                else
-                {
-                    while (top(stack) != '(')
-                    {
-                        postfix[j] = pop(&stack);
-                        j++;
-
-                        postfix[j] = ',';
-                        j++;
-                    }
-                    pop(&stack);
-                }
+                push(&stack, exp[i++]);
             }
-
-            // handling operators
-            else if (oper(exp[i]))
+            else if (out_pre(exp[i]) == in_pre(top(stack)))
             {
-                if (stack && oper(exp[i]) <= oper(top(stack)))
-                {
-                    while (!is_empty(stack) && top(stack) != '(')
-                    {
-                        postfix[j] = pop(&stack);
-                        j++;
-
-                        postfix[j] = ',';
-                        j++;
-                    }
-                    push(&stack, exp[i]);
-                }
-                else
-                {
-                    push(&stack, exp[i]);
-                }
+                pop(&stack);
+                i++;
             }
+            else
+            {
+                postfix[j++] = pop(&stack);
+                postfix[j++] = ',';
+            }
+        }
+        else
+        {
+            i++;
         }
     }
 
     // emptying the stack
     while (!is_empty(stack))
     {
-        postfix[j] = pop(&stack);
-        j++;
-
-        postfix[j] = ',';
-        j++;
+        postfix[j++] = pop(&stack);
+        postfix[j++] = ',';
     }
     postfix[j] = '\0';
     free(stack);
@@ -100,56 +59,81 @@ char *infix_to_postfix(char exp[], int size)
     return postfix;
 }
 
-int evaluate_postfix(char postfix[])
+double evaluate_postfix(char postfix[])
 {
     Node_i *stack = NULL;
 
     for (int i = 0; postfix[i] != '\0'; i++)
     {
-        if (postfix[i] != ',')
+        // handling operands
+        if (isdigit(postfix[i]))
         {
-            // handling operands
-            if (isdigit(postfix[i]))
+            int dec = 0;
+            int isdouble = 0;
+
+            double sum = 0;
+
+            for (i; postfix[i] != ','; i++)
             {
-                int n = 0;
-                int j = 0;
-                while (postfix[i] != ',')
+                if (postfix[i] == '.')
                 {
-                    if (j)
-                    {
-                        n = n * 10;
-                    }
-                    n += postfix[i] - '0';
-                    j++;
-                    i++;
+                    isdouble = 1;
                 }
-                push_i(&stack, n);
+                else if (isdouble > 0)
+                {
+                    sum += (postfix[i] - '0') / pow(10, isdouble);
+                    isdouble++;
+                }
+                else
+                {
+                    if (dec != 0)
+                    {
+                        sum *= 10;
+                    }
+                    sum += postfix[i] - '0';
+                    dec = 1;
+                }
+            }
+            push_i(&stack, sum);
+        }
+
+        // handling operators
+        else if (is_operator(postfix[i]))
+        {
+            double b = pop_i(&stack);
+            double a = 0;
+            if (!is_unary(postfix[i]))
+            {
+                a = pop_i(&stack);
             }
 
-            // handling operators
-            else if (oper(postfix[i]))
+            switch (postfix[i])
             {
-                int b = pop_i(&stack);
-                int a = pop_i(&stack);
-
-                switch (postfix[i])
-                {
-                case '+':
-                    push_i(&stack, add(a, b));
-                    break;
-                case '-':
-                    push_i(&stack, sub(a, b));
-                    break;
-                case '*':
-                    push_i(&stack, mul(a, b));
-                    break;
-                case '/':
-                    push_i(&stack, div_(a, b, stack));
-                }
+            case '+':
+                push_i(&stack, add(a, b));
+                break;
+            case '-':
+                push_i(&stack, sub(a, b));
+                break;
+            case '*':
+                push_i(&stack, mul(a, b));
+                break;
+            case '/':
+                push_i(&stack, div_(a, b, stack));
+                break;
+            case '^':
+                push_i(&stack, pow(a, b));
+                break;
+            case 's':
+                push_i(&stack, sqrt(b));
+                break;
+            case '!':
+                push_i(&stack, (b * -1));
+                break;
             }
         }
     }
-    int r = pop_i(&stack);
+    double r = pop_i(&stack);
     free(stack);
 
     return r;

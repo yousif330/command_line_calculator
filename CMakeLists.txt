@@ -16,6 +16,8 @@ include_directories(include)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+target_link_libraries(calc PRIVATE m)
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )

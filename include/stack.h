@@ -18,11 +18,11 @@ int is_empty(Node *head);
 
 typedef struct Node_i
 {
-    int data;
+    double data;
     struct Node_i *next;
 } Node_i;
 
-void push_i(Node_i **head, int data);
-int pop_i(Node_i **head);
+void push_i(Node_i **head, double data);
+double pop_i(Node_i **head);
 
 #endif
